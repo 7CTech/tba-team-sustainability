@@ -63,17 +63,19 @@ public class Main {
         Gson gson = new GsonBuilder().create();
         for (int i = 0; i < fileCount; i++) {
             try {
+                Reader reader = new FileReader("teams/" + year + "/data-" + fileCount);
                 String fileContents;
                 StringBuilder sb = new StringBuilder();
-                File data = new File("teams/" + year + "/data-" + fileCount);
-                BufferedReader buf = new BufferedReader(new FileReader(data));
-                String line;
-                while ((line = buf.readLine()) != null) {
-                    System.out.println(line);
-                    sb.append(line);
+                try {
+                    char[] chars = new char[8192];
+                    for(int len; (len = reader.read(chars)) > 0;) {
+                        sb.append(chars);
+                    }
+                } finally {
+                    reader.close();
                 }
                 fileContents = sb.toString();
-                System.out.print(fileContents);
+                System.out.println(fileContents);
                 teams = gson.fromJson(fileContents, Team[].class);
             } catch (IOException e) {
                 e.printStackTrace();
