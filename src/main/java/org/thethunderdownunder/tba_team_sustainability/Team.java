@@ -1,3 +1,5 @@
+package org.thethunderdownunder.tba_team_sustainability;
+
 public class Team {
     public String address;
     public String city;

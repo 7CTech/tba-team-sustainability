@@ -1,19 +1,13 @@
+package org.thethunderdownunder.tba_team_sustainability;
+
 import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 public class Main {
@@ -38,6 +32,7 @@ public class Main {
         }
         teamFile.mkdirs();
         for (fileCount = 0;;fileCount++) {
+            String file = null;
             System.out.println("fileCount: " + fileCount);
             HttpURLConnection connection = null;
             /* For dodgy schools*/
@@ -51,9 +46,14 @@ public class Main {
                 DataInputStream dataInputStream = new DataInputStream(connection.getInputStream());
                 String line;
                 BufferedWriter bw = new BufferedWriter(new FileWriter("teams/" + year + "/data-" + fileCount));
+
+
+                StringBuilder sb = new StringBuilder();
                 while ((line = dataInputStream.readLine()) != null) {
                     bw.write(line);
+                    sb.append(line);
                 }
+                file = sb.toString();
                 bw.flush();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -65,45 +65,13 @@ public class Main {
                 e.printStackTrace();
             }
             if (Objects.equals(data, "[]") || Objects.equals(data, "")) break;
-        }
-
-        Team[] teams = new Team[fileCount];
-
-        Gson gson = new GsonBuilder().create();
-        for (int i = 0; i < fileCount; i++) {
-            try {
-                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream("teams/" + year + "/data-" + fileCount), StandardCharsets.US_ASCII));
-                StringBuilder sb = new StringBuilder();
-
-                FileChannel fc = new FileInputStream("teams/" + year + "/data-" + fileCount).getChannel();
-                ByteBuffer buf = ByteBuffer.allocateDirect(150000);
-
-                byte[] rawData = Files.readAllBytes(Paths.get("teams/" + year + "/data-" + fileCount));
-                char[] c = new char[8192];
-                Charset ch = StandardCharsets.US_ASCII;
-
-                while ( fc.read( buf ) != -1 ) {
-                    buf.rewind();
-                    CharBuffer chbuf = ch.decode(buf);
-                    for ( int e = 0; e < chbuf.length(); e++ ) {
-                /* print each character */
-                        System.out.print(chbuf.get());
-                    }
-                    buf.clear();
-                }
-                while(br.read(c) > 0) {
-                    sb.append(c);
-                    c = new char[8192];
-                }
-                br.close();
-                String fileContents = new String(rawData);
-                System.out.println(new String(fileContents.getBytes(StandardCharsets.US_ASCII), StandardCharsets.US_ASCII));
-                teams = gson.fromJson(fileContents, Team[].class);
-            } catch (IOException e) {
-                e.printStackTrace();
+            JsonParser parser = new JsonParser();
+            JsonArray array = parser.parse(file).getAsJsonArray();
+            for (JsonElement element : array) {
+                JsonObject obj = element.getAsJsonObject();
+                System.out.println(obj.get("nickname").getAsString());
             }
         }
-        System.out.println(teams[0].nickname);
 
         System.exit(0);
 
