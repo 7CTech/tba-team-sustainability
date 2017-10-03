@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 
 public class Main {
@@ -30,8 +31,18 @@ public class Main {
             teamFile.delete();
         }
         teamFile.mkdirs();
+        File teamFile2 = new File("teams/" + year2);
+        if (teamFile2.isDirectory()) {
+            String[] files = teamFile2.list();
+            for (String file : files) {
+                new File(teamFile2.getPath(), file).delete();
+            }
+            teamFile2.delete();
+        }
+        teamFile2.mkdirs();
         StringBuilder allData = new StringBuilder();
         ArrayList<String> teamsInYear1 = new ArrayList<>();
+        ArrayList<Integer> year1RookieYears = new ArrayList<>();
         ArrayList<String> teamsInYear2 = new ArrayList<>();
         fileLoop:
         for (fileCount = 0;;fileCount++) {
@@ -65,30 +76,43 @@ public class Main {
                     else continue;
                 }
 
-
                 allData.append(file);
                 JsonParser parser = new JsonParser();
                 JsonArray array = parser.parse(file).getAsJsonArray();
                 for (JsonElement element : array) {
                     JsonObject obj = element.getAsJsonObject();
                     //System.out.println(obj.get("nickname").getAsString());
-                    if (i == 0) teamsInYear1.add(obj.get("team_number").getAsString());
-                    else teamsInYear2.add(obj.get("team_number").getAsString());
+                    if (i == 0) {
+                        System.out.println("number: " + obj.get("team_number").getAsString());
+                        System.out.println("rookie: " + obj.get("rookie_year").getAsString());
+                        teamsInYear1.add(obj.get("team_number").getAsString());
+
+                        year1RookieYears.add(obj.get("rookie_year").getAsInt());
+                    } else {
+                        teamsInYear2.add(obj.get("team_number").getAsString());
+                    }
                 }
             }
         }
 
         int deadTeams = 0;
+        ArrayList<Integer> teamAges = new ArrayList<>();
 
         for (String team : teamsInYear1) {
+            System.out.println(team);
             if (!teamsInYear2.contains(team))  {
                 System.out.println(team);
+                teamAges.add(Integer.parseInt(year2) - year1RookieYears.get(teamsInYear1.indexOf(team)));
                 deadTeams++;
             }
         }
         System.out.println(deadTeams);
+        System.out.println("Rookie Dropouts: " + Collections.frequency(teamAges, 1));
+        System.out.println("2nd year Dropouts: " + Collections.frequency(teamAges, 2));
+        System.out.println("3rd year Dropouts: " + Collections.frequency(teamAges, 3));
+        System.out.println("4th Dropouts: " + Collections.frequency(teamAges, 4));
+        System.out.println("5th Dropouts: " + Collections.frequency(teamAges, 5));
 
         System.exit(0);
-
     }
 }
