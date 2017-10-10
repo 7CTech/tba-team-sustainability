@@ -83,11 +83,9 @@ public class Main {
                     JsonObject obj = element.getAsJsonObject();
                     //System.out.println(obj.get("nickname").getAsString());
                     if (i == 0) {
-                        System.out.println("number: " + obj.get("team_number").getAsString());
-                        System.out.println("rookie: " + obj.get("rookie_year").getAsString());
+                        String rookieYear = !obj.get("rookie_year").isJsonNull() ? obj.get("rookie_year").getAsString() : year1;
                         teamsInYear1.add(obj.get("team_number").getAsString());
-
-                        year1RookieYears.add(obj.get("rookie_year").getAsInt());
+                        year1RookieYears.add(Integer.parseInt(rookieYear));
                     } else {
                         teamsInYear2.add(obj.get("team_number").getAsString());
                     }
@@ -99,19 +97,25 @@ public class Main {
         ArrayList<Integer> teamAges = new ArrayList<>();
 
         for (String team : teamsInYear1) {
-            System.out.println(team);
             if (!teamsInYear2.contains(team))  {
                 System.out.println(team);
                 teamAges.add(Integer.parseInt(year2) - year1RookieYears.get(teamsInYear1.indexOf(team)));
                 deadTeams++;
             }
         }
-        System.out.println(deadTeams);
         System.out.println("Rookie Dropouts: " + Collections.frequency(teamAges, 1));
+        while (teamAges.contains(1)) teamAges.remove(teamAges.indexOf(1));
         System.out.println("2nd year Dropouts: " + Collections.frequency(teamAges, 2));
+        while (teamAges.contains(2)) teamAges.remove(teamAges.indexOf(2));
         System.out.println("3rd year Dropouts: " + Collections.frequency(teamAges, 3));
+        while (teamAges.contains(3)) teamAges.remove(teamAges.indexOf(3));
         System.out.println("4th Dropouts: " + Collections.frequency(teamAges, 4));
+        while (teamAges.contains(4)) teamAges.remove(teamAges.indexOf(4));
         System.out.println("5th Dropouts: " + Collections.frequency(teamAges, 5));
+        while (teamAges.contains(5)) teamAges.remove(teamAges.indexOf(5));
+
+        System.out.println("Other Dropouts: " + teamAges.size());
+
 
         System.exit(0);
     }
