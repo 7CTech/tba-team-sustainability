@@ -17,8 +17,8 @@ public class Main {
         System.out.println(Arrays.toString(args));
         if (args.length < 1) System.exit(1);
         String year1 = args[0];
-        String year2 = args[1];
-        String[] years = {year1, year2};
+        //String year2 = args[1];
+        String[] years = {year1};
         System.out.println("year is " + year1);
 
         URL site;
@@ -31,7 +31,7 @@ public class Main {
             teamFile.delete();
         }
         teamFile.mkdirs();
-        File teamFile2 = new File("teams/" + year2);
+        /*File teamFile2 = new File("teams/" + year2);
         if (teamFile2.isDirectory()) {
             String[] files = teamFile2.list();
             for (String file : files) {
@@ -39,11 +39,12 @@ public class Main {
             }
             teamFile2.delete();
         }
-        teamFile2.mkdirs();
+        teamFile2.mkdirs();*/
         StringBuilder allData = new StringBuilder();
-        ArrayList<String> teamsInYear1 = new ArrayList<>();
-        ArrayList<Integer> year1RookieYears = new ArrayList<>();
-        ArrayList<String> teamsInYear2 = new ArrayList<>();
+        //ArrayList<String> teamsInYear1 = new ArrayList<>();
+        //ArrayList<Integer> year1RookieYears = new ArrayList<>();
+        //ArrayList<String> teamsInYear2 = new ArrayList<>();
+        int rookieCount = 0;
         fileLoop:
         for (fileCount = 0;;fileCount++) {
             String file = null;
@@ -52,7 +53,7 @@ public class Main {
             /* For dodgy schools*/
             SSLUtilities.trustAllHostnames();
             SSLUtilities.trustAllHttpsCertificates();
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < years.length; i++) {
                 file = null;
                 try {
                     site = new URL("https://www.thebluealliance.com/api/v3/teams/" + years[i] + "/" + fileCount + "?X-TBA-Auth-Key=" + Constants.TBA_AUTH_KEY);
@@ -72,7 +73,7 @@ public class Main {
                     e.printStackTrace();
                 }
                 if (Objects.equals(file, "[]") || Objects.equals(file, "") || file == null) {
-                    if (i == 1) break fileLoop;
+                    if (i == 0) break fileLoop;
                     else continue;
                 }
 
@@ -84,38 +85,17 @@ public class Main {
                     //System.out.println(obj.get("nickname").getAsString());
                     if (i == 0) {
                         String rookieYear = !obj.get("rookie_year").isJsonNull() ? obj.get("rookie_year").getAsString() : year1;
-                        teamsInYear1.add(obj.get("team_number").getAsString());
-                        year1RookieYears.add(Integer.parseInt(rookieYear));
-                    } else {
-                        teamsInYear2.add(obj.get("team_number").getAsString());
-                    }
+                        //teamsInYear1.add(obj.get("team_number").getAsString());
+                        //year1RookieYears.add(Integer.parseInt(rookieYear));
+                        if (Objects.equals(rookieYear, year1)) rookieCount++;
+                    }/* else {
+                        //teamsInYear2.add(obj.get("team_number").getAsString());
+                    }*/
                 }
             }
         }
 
-        int deadTeams = 0;
-        ArrayList<Integer> teamAges = new ArrayList<>();
-
-        for (String team : teamsInYear1) {
-            if (!teamsInYear2.contains(team))  {
-                System.out.println(team);
-                teamAges.add(Integer.parseInt(year2) - year1RookieYears.get(teamsInYear1.indexOf(team)));
-                deadTeams++;
-            }
-        }
-        System.out.println("Rookie Dropouts: " + Collections.frequency(teamAges, 1));
-        while (teamAges.contains(1)) teamAges.remove(teamAges.indexOf(1));
-        System.out.println("2nd year Dropouts: " + Collections.frequency(teamAges, 2));
-        while (teamAges.contains(2)) teamAges.remove(teamAges.indexOf(2));
-        System.out.println("3rd year Dropouts: " + Collections.frequency(teamAges, 3));
-        while (teamAges.contains(3)) teamAges.remove(teamAges.indexOf(3));
-        System.out.println("4th Dropouts: " + Collections.frequency(teamAges, 4));
-        while (teamAges.contains(4)) teamAges.remove(teamAges.indexOf(4));
-        System.out.println("5th Dropouts: " + Collections.frequency(teamAges, 5));
-        while (teamAges.contains(5)) teamAges.remove(teamAges.indexOf(5));
-
-        System.out.println("Other Dropouts: " + teamAges.size());
-
+        System.out.println("Year: " + year1 + "; Rookie Count: " + rookieCount);
 
         System.exit(0);
     }
