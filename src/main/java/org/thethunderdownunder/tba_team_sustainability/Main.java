@@ -14,12 +14,12 @@ public class Main {
     private static int fileCount = 0;
 
     public static void main(String... args) {
-        System.out.println(Arrays.toString(args));
+        //System.out.println(Arrays.toString(args));
         if (args.length < 1) System.exit(1);
         String year1 = args[0];
         //String year2 = args[1];
         String[] years = {year1};
-        System.out.println("year is " + year1);
+        //System.out.println("year is " + year1);
 
         URL site;
         File teamFile = new File("teams/" + year1);
@@ -45,6 +45,8 @@ public class Main {
         //ArrayList<Integer> year1RookieYears = new ArrayList<>();
         //ArrayList<String> teamsInYear2 = new ArrayList<>();
         int rookieCount = 0;
+        int noRookieYearCount = 0;
+        int teamCount = 0;
         fileLoop:
         for (fileCount = 0;;fileCount++) {
             String file = null;
@@ -84,10 +86,15 @@ public class Main {
                     JsonObject obj = element.getAsJsonObject();
                     //System.out.println(obj.get("nickname").getAsString());
                     if (i == 0) {
-                        String rookieYear = !obj.get("rookie_year").isJsonNull() ? obj.get("rookie_year").getAsString() : year1;
+                        if (!obj.get("team_number").isJsonNull()) teamCount++;
+                        /*if (obj.get("rookie_year").isJsonNull()) {
+                            noRookieYearCount++;
+                            System.out.println(obj.get("team_number"));
+                        }*/
+                        //String rookieYear = !obj.get("rookie_year").isJsonNull() ? obj.get("rookie_year").getAsString() : year1;
                         //teamsInYear1.add(obj.get("team_number").getAsString());
                         //year1RookieYears.add(Integer.parseInt(rookieYear));
-                        if (Objects.equals(rookieYear, year1)) rookieCount++;
+                        //if (Integer.parseInt(rookieYear) == Integer.parseInt(year1)) rookieCount++;
                     }/* else {
                         //teamsInYear2.add(obj.get("team_number").getAsString());
                     }*/
@@ -95,7 +102,8 @@ public class Main {
             }
         }
 
-        System.out.println("Year: " + year1 + "; Rookie Count: " + rookieCount);
+        System.out.println("Year: " + year1 +"; Team Count: " + teamCount/* + "; Rookie Count: " + rookieCount*/);
+        //System.out.println("No rookie year: " + noRookieYearCount);
 
         System.exit(0);
     }
