@@ -16,18 +16,18 @@ import java.util.Objects;
 
 public class Main {
     public static void main(String... args) {
-        if (args.length < 2) System.exit(1);
+        if (args.length < 1) System.exit(1);
         String year1 = args[0];
-        String year2 = args[1];
-        String years[] = {year1, year2};
+        //String year2 = args[1];
+        String years[] = {year1/*, year2*/};
 
         /*Comparison Data Variables*/
         ArrayList<Integer> rookiesY1 = new ArrayList<>();
-        ArrayList<Integer> rookiesOfY1InY2 = new ArrayList<>();
+        //ArrayList<Integer> rookiesOfY1InY2 = new ArrayList<>();
 
         yearLoop:
         for (String year : years) {
-            System.out.println(year);
+            //System.out.println(year);
             File teamFile = new File("teams/" + year);
             if (teamFile.isDirectory()) {
                 String[] files = teamFile.list();
@@ -64,23 +64,24 @@ public class Main {
                 for (JsonElement element : array) {
                     JsonObject obj = element.getAsJsonObject();
                     if (obj.get("rookie_year").isJsonNull()) continue;
-                    if (obj.get("rookie_year").getAsInt() == Integer.parseInt(year1)){
-                        if (Objects.equals(year, year1)) rookiesY1.add(obj.get("rookie_year").getAsInt());
-                        else rookiesOfY1InY2.add(obj.get("rookie_year").getAsInt());
+                    if (obj.get("rookie_year").getAsInt() <= Integer.parseInt(year1) - 5) {
+                        if (Objects.equals(year, year1)) rookiesY1.add(obj.get("team_number").getAsInt());
+                        //else rookiesOfY1InY2.add(obj.get("team_number").getAsInt());
                     }
                 }
             }
         }
 
-        System.out.println(rookiesY1.size());
-        System.out.println(rookiesOfY1InY2.size());
-
-        int deadCount = 0;
+        /*int deadCount = 0;
 
         for (int rookie : rookiesY1) {
-            if (!rookiesOfY1InY2.contains(rookie)) deadCount++;
-        }
+            if (!rookiesOfY1InY2.contains(rookie)) {
+                deadCount++;
+            }
+        }*/
 
-        System.out.println("Year 1: " + year1 + "; Year 2: " + year2 + "; Dead Count: " + deadCount + ";");
+        //System.out.println("Year 1: " + year1 + "; Year 2: " + year2 + "; Dead Count: " + deadCount + ";");
+
+        System.out.println("Year: " + year1 + "; Count: " + rookiesY1.size() + ";");
     }
 }
